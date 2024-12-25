@@ -23,42 +23,42 @@ function generateChallenge() {
     return crypto.randomBytes(16).toString('hex');
 }
 
-// 第一步：生成挑战字符串
+// 第一步：生成签名 hash
 bot.command('bind_wallet', (ctx) => {
     const userId = ctx.from.id;
     const challenge = generateChallenge();
-
     // 保存挑战字符串
     userChallenges[userId] = { challenge };
-    ctx.reply(`请用您的钱包签名以下信息，并将签名结果发送给我：\n\n${challenge}`);
+    ctx.reply(`${challenge}生成签名信息，并将签名hash发送给我:http://localhost:3000`);
 });
 
 // // 第二步：接收签名并验证
-// bot.on('text', async (ctx) => {
-//     const userId = ctx.from.id;
-//     const signedMessage = ctx.message.text.trim();
+bot.on('text', async (ctx) => {
+    const userId = ctx.from.id;
+    const signedMessage = ctx.message.text.trim();
 
-//     if (!userChallenges[userId]) {
-//         ctx.reply('您需要先使用 /bind_wallet 生成挑战字符串。');
-//         return;
-//     }
+    if (!userChallenges[userId]) {
+        ctx.reply('您需要先使用 /bind_wallet 生成挑战字符串。');
+        return;
+    }
 
-//     const { challenge } = userChallenges[userId];
 
-//     try {
-//         // 验证签名并获取签名的钱包地址
-//         const recoveredAddress = ethers.utils.verifyMessage(challenge, signedMessage);
+    const { challenge } = userChallenges[userId];
 
-//         // 保存绑定关系
-//         userBindings[userId] = recoveredAddress;
-//         delete userChallenges[userId];
+    try {
+        // 验证签名并获取签名的钱包地址
+        const recoveredAddress = ethers.verifyMessage(challenge, signedMessage);
 
-//         ctx.reply(`绑定成功！您的钱包地址为：${recoveredAddress}`);
-//     } catch (error) {
-//         console.error('签名验证失败:', error);
-//         ctx.reply('签名验证失败，请确保您正确签名了机器人提供的挑战字符串。');
-//     }
-// });
+        // 保存绑定关系
+        userBindings[userId] = recoveredAddress;
+        delete userChallenges[userId];
+
+        ctx.reply(`绑定成功！您的钱包地址为：${recoveredAddress}`);
+    } catch (error) {
+        console.error('签名验证失败:', error);
+        ctx.reply('签名验证失败，请确保您正确签名了机器人提供的挑战字符串。');
+    }
+});
 
 
 // 新用户加入事件

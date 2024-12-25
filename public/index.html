@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>钱包签名示例</title>
+  <style>
+    /* 基础样式重置，可根据需要自行调整 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* 设置页面字体与背景色 */
+    body {
+      font-family: "Microsoft YaHei", Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh; /* 让内容垂直居中 */
+      padding: 20px; /* 在狭小屏幕上预留一些空隙 */
+    }
+
+    /* 容器样式 */
+    .container {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 450px;
+      width: 100%;
+      padding: 20px;
+      text-align: center;
+    }
+
+    /* 给容器内部元素增加间隔（除了最后一个元素） */
+    .container > *:not(:last-child) {
+      margin-bottom: 1.2rem;
+    }
+
+    /* 标题样式 */
+    h1 {
+      font-size: 1.3rem;
+      color: #333;
+    }
+
+    /* 钱包行容器：让地址和按钮在同一行，按钮紧贴地址 */
+    .wallet-row {
+      /* display: inline-flex;  */
+       /* inline-flex 让地址和按钮连在同一行 */
+      align-items: center;
+      gap: 0.5rem;           /* 地址和按钮之间的间距 */
+      flex-wrap: wrap;       /* 小屏幕时可自动换行 */
+    }
+
+    /* 地址的样式（这里去掉了“钱包地址:”的标签） */
+    .wallet-row span {
+      font-size: 0.95rem;
+      color: #666;
+      word-break: break-all; /* 避免地址过长时撑破布局 */
+      min-width: 140px;      /* 给地址一个最小宽度，可按需调整 */
+    }
+
+    /* 小按钮样式：缩小字体、减少内边距，使其更紧凑 */
+    .wallet-row button {
+      font-size: 0.85rem;
+      padding: 0.3rem 0.7rem;
+      border: none;
+      border-radius: 4px;
+      background: #1677ff;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .wallet-row button:hover {
+      background: #145ccc;
+    }
+
+    /* 输入框样式 */
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 0.95rem;
+    }
+
+    /* “签名消息”按钮 */
+    .btn-sign {
+      font-size: 0.9rem;
+      padding: 0.4rem 0.8rem;
+      border: none;
+      border-radius: 4px;
+      background: #1677ff;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .btn-sign:disabled {
+      background: #bbb;
+      cursor: not-allowed;
+    }
+    .btn-sign:hover:not(:disabled) {
+      background: #145ccc;
+    }
+
+    /* 签名结果区域 */
+    pre {
+      text-align: left;
+      padding: 8px;
+      background: #f8f8f8;
+      border-radius: 4px;
+      max-width: 100%;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      color: #333;
+    }
+
+    /* 小标题样式 */
+    h2 {
+      font-size: 1rem;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+    #signature{
+      word-break: break-all;
+      font-size: 12px;
+      background: #f1f1f1;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>使用钱包签名消息</h1>
+    
+    <!-- 只显示地址和按钮，不再显示“钱包地址：”文字 -->
+    <div class="wallet-row">
+      <span id="wallet-address"></span>
+      <button id="connect-button">连接钱包</button>
+    </div>
+
+    <!-- 输入框，用于输入挑战/消息 -->
+    <div>
+      <label for="message-input" style="display:block; margin-bottom:0.25rem; color:#333;">
+        机器人返回的消息:
+      </label>
+      <input type="text" id="message-input" placeholder="在此输入需要签名的消息" />
+    </div>
+
+    <!-- “签名消息”按钮 -->
+    <div>
+      <button id="sign-button" class="btn-sign" disabled>签名消息</button>
+    </div>
+
+    <!-- 签名结果 -->
+    <div>
+      <h2>签名结果：</h2>
+      <p id="signature"></p>
+    </div>
+  </div>
+
+  <!-- 如果想使用CDN，可改为：
+       <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+  -->
+  <script src="./ethers.umd.min.js"></script>
+  <script>
+    const connectButton = document.getElementById('connect-button');
+    const signButton = document.getElementById('sign-button');
+    const walletAddressElement = document.getElementById('wallet-address');
+    const signatureElement = document.getElementById('signature');
+    const messageInput = document.getElementById('message-input');
+
+    let provider;
+    let signer;
+
+    // 如果没安装 MetaMask，给出提示
+    if (typeof window.ethereum === 'undefined') {
+      alert('请安装 MetaMask!');
+    }
+
+    // 点击“连接钱包”按钮
+    connectButton.addEventListener('click', async () => {
+      try {
+        // 请求用户连接钱包
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        console.log("连接成功，获取的账户：", accounts);
+
+        if (accounts.length === 0) {
+          alert("未找到任何账户");
+          return;
+        }
+
+        // 在页面上显示第一个账户
+        const account = accounts[0];
+        walletAddressElement.textContent = account;
+
+        // 创建 Ethers.js 提供者与签名者
+        provider = new ethers.BrowserProvider(window.ethereum);
+        await provider.ready; // 等待 Provider 准备就绪
+        signer = await provider.getSigner();
+
+        console.log("钱包地址:", await signer.getAddress());
+        // 隐藏“连接钱包”按钮
+        connectButton.style.display = 'none';
+
+        // 启用“签名消息”按钮
+        signButton.disabled = false;
+      } catch (error) {
+        console.error("连接钱包失败:", error);
+        alert('连接钱包失败！');
+      }
+    });
+
+    // 点击“签名消息”按钮
+    signButton.addEventListener('click', async () => {
+      const message = messageInput.value.trim();
+
+      if (!message) {
+        alert("请输入需要签名的消息！");
+        return;
+      }
+
+      try {
+        // 对输入框中的消息进行签名
+        const signature = await signer.signMessage(message);
+        // 显示签名结果
+        signatureElement.textContent = signature;
+        console.log("签名成功:", signature);
+      } catch (error) {
+        console.error("签名失败:", error);
+        alert('签名失败！');
+      }
+    });
+  </script>
+</body>
+</html>
