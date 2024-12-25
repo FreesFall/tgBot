@@ -1,7 +1,9 @@
 {
   "dependencies": {
-    "ethers": "^6.13.4",
+    "crypto-browserify": "^3.12.1",
+    "ethers": "^5.7.2",
     "express": "^4.21.2",
-    "telegraf": "^4.16.3"
+    "telegraf": "^4.16.3",
+    "web3": "^4.16.0"
   }
 }
