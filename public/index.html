@@ -185,7 +185,8 @@
     connectButton.addEventListener('click', async () => {
       try {
         // 请求用户连接钱包
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        
         console.log("连接成功，获取的账户：", accounts);
 
         if (accounts.length === 0) {
@@ -212,6 +213,18 @@
         console.error("连接钱包失败:", error);
         alert('连接钱包失败！');
       }
+    });
+
+        // 监听账户变化
+    window.ethereum.on('accountsChanged', (newAccounts) => {
+        if (newAccounts.length === 0) {
+            alert("未找到任何账户");
+        } else {
+            // 当前激活账户发生变化时，更新显示
+            const newAccount = newAccounts[0];
+            walletAddressElement.textContent = newAccount;
+            console.log("切换到新的账户：", newAccount);
+        }
     });
 
     // 点击“签名消息”按钮
