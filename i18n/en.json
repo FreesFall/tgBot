@@ -1,0 +1,15 @@
+{
+    "Bind Wallet":"Bind Wallet",
+    "Check Wallet":"Check Wallet",
+    "Unbind Wallet":"Unbind Wallet",
+    "signing messages": "Signing messages",
+    "copy the signing message to sign": "Copy the signing message to sign",
+    "signature link": "Signature link",
+    "your bound wallet address is": "Your bound wallet address is",
+    "you have not yet bound the wallet address, please bind first": "you have not yet bound the wallet address, please bind first.",
+    "Binding_successful":"Binding successful! Your wallet address is:",
+    "Signature_verification":"Signature verification failed, please ensure that you correctly signed the character information provided by the robot.",
+    "Please_wallet":"Please bind your wallet first! I'm gonna kick you out in five seconds.",
+    "Please_select":"Please select the action you need:",
+    "Unwallet":"Unbind successfully"
+}

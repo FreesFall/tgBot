@@ -134,33 +134,34 @@
 </head>
 <body>
   <div class="container">
-    <h1>使用钱包签名消息</h1>
+    <h1>Sign Message with Wallet</h1>
     
-    <!-- 只显示地址和按钮，不再显示“钱包地址：”文字 -->
+    <!-- Display only the address and button, no longer show "Wallet Address:" -->
     <div class="wallet-row">
       <span id="wallet-address"></span>
-      <button id="connect-button">连接钱包</button>
+      <button id="connect-button">Connect Wallet</button>
     </div>
-
-    <!-- 输入框，用于输入挑战/消息 -->
+  
+    <!-- Input field for the challenge/message -->
     <div>
       <label for="message-input" style="display:block; margin-bottom:0.25rem; color:#333;">
-        机器人返回的消息:
+        Message returned by the bot:
       </label>
-      <input type="text" id="message-input" placeholder="在此输入需要签名的消息" />
+      <input type="text" id="message-input" placeholder="Enter the message to be signed here" />
     </div>
-
-    <!-- “签名消息”按钮 -->
+  
+    <!-- "Sign Message" button -->
     <div>
-      <button id="sign-button" class="btn-sign" disabled>签名消息</button>
+      <button id="sign-button" class="btn-sign" disabled>Sign Message</button>
     </div>
-
-    <!-- 签名结果 -->
+  
+    <!-- Signature result -->
     <div>
-      <h2>签名结果：</h2>
+      <h2>Signature Result (Send to Bot):</h2>
       <p id="signature"></p>
     </div>
   </div>
+  
 
   <!-- 如果想使用CDN，可改为：
        <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>

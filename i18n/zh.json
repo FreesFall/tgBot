@@ -1,0 +1,16 @@
+{
+    "Bind Wallet":"绑定钱包",
+    "Check Wallet":"查看钱包",
+    "Unbind Wallet":"解绑钱包",
+    "signing messages": "签名信息",
+    "copy the signing message to sign": "复制签名信息进行签名",
+    "signature link": "签名链接",
+    "your bound wallet address is": "您绑定的钱包地址为",
+    "you have not yet bound the wallet address, please bind first": "您尚未绑定钱包地址，请先进行绑定。",
+    "Binding_successful":"绑定成功！您的钱包地址为:",
+    "Signature_verification":"绑签名验证失败，请确保您正确签名了机器人提供的字符信息。",
+    "Please_wallet":"请先绑定钱包！我将在 5 秒后踢出您。",
+    "Please_select":"欢迎！请选择操作：",
+    "Unwallet":"解绑成功"
+}
+
